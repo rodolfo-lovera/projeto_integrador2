@@ -1,24 +1,28 @@
 import os
-from flask import Flask, jsonify
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from app.config import config_by_name, DevelopmentConfig
 
-def create_app():
-    """ Cria, configura e retorna a instância da aplicação Flask.
-    """
-    
+# Instancia a extensão do ORM sem vincular n\nhuma aplicação ainda
+db = SQLAlchemy()
+
+def create_app(config_name=None):
+    """ Cria a instância Flask, carrega as configurações e acopla as extensões """
     app = Flask(__name__)
     
-    # Carregamento das configurações básicas
-    app.config["SECRET_KEY"] = os.getenv("SECRET_KEY","chave-padrao-desenvolvimento")
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
-    app.config["SQLALCHEMY_TRACJ_MODIFICATIONS"] = False
+    env_name = config_name or os.getenv("FLAK_ENV", "development")
+    config_class = config_by_name.get(env_name, DevelopmentConfig)
+    app.config.from_object(config_class)
     
-    # rota de teste para conectividade
-    @app.route("/")
-    def index():
-        return jsonify({
-            "projeto": "IceWebCream 2.0",
-            "status": "Aplicação rodando no conteiner Docker!",
-            "ambiente":"Desenvolvimento Local"
-        })
+    if not app.config.get("SQLALCHEMY_DATABASE_URI"):
+        app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///temp.db"
+    
+    # Inicializa o banco de dados com a configuração carregada
+    db.init_app(app)
+    
+    # Registro dos Blueprint da aplicação
+    from app.routes import web_bp, api_bp
+    app.register_blueprint(web_bp)
+    app.register_blueprint(api_bp)
     
     return app
