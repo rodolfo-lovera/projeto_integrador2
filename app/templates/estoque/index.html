@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Gestão de Estoque - IceWebCream 2.0{% endblock%}
+
+{% block content %}
+<section class="dashboard-header">
+    <h2>Controle de Suprimentos e Estoques</h2>
+    <p>Painel com atualização em tempo real de produtos e níveis de reposição</p>
+</section>
+
+<!-- Fedback visual para mensagens de sucesso/ erro da API -->
+<div id="mensagem-status" class="alerta oculto" role="status" aria-live="polite"></div>
+
+<div class="grid-layout">
+    <!-- Coluna 1: Tabela Dinâmica de Produtos -->
+    <section class="card" aria-labelledby="titulo-tabela">
+        <div class="card-header">
+            <h3 id="titulo-tabela">Itens em estoque</h3>
+            <button id="btn-atualizar" class="btn btn-secundario" type="button" aria-label="Atualizar lista de itens">
+                Atualizar Lista
+            </button>
+        </div>
+
+        <div class="table-responsive">
+            <table class="tabela-estoque" aria-describedby="titulo-tabela">
+                <thead>
+                    <tr>
+                        <th scope="col">SKU</th>
+                        <th scope="col">Produto</th>
+                        <th scope="col">Saldo Atual</th>
+                        <th scope="col">Mínimo</th>
+                        <th scope="col">Status</th>
+                    </tr>
+                </thead>
+                <tbody id="tabela-produtos-corpo">
+                    <tr>
+                        <td colspan="5" class="texto-centro">Carregando catálogo de produtos...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Coluna 2: Formulário Assíncrono de Movimentação -->
+    <section class="card" aria-labelledby="titulo-movimentacao">
+        <div class="card-header">
+            <h3 id="titulo-movimentacao">Lançar Movimentação</h3>
+        </div>
+
+        <form id="form-movimentacao" novilidate>
+            <div class="form-grupo">
+                <label for="select-produto">Produto: <span class="obrigatorio" aria-hidden="true">*</span></label>
+                <select id="select-produto" name="produto_id" required aria-required="true">
+                    <option value="">Selecione um produto...</option>
+                </select>
+            </div>
+
+            <div class="form-grupo">
+                <label for="select tipo">Tipo de Operação: <span class="obrigatorio" aria-hidden="true">*</span></label>
+                <select id="select-tipo" name="tipo" required aria-required="true">
+                    <option value="ENTRADA">Entrada (chegada de matéria-prima)</option>
+                    <option value="SAIDA">Saída (Consumo ou descarte)</option>
+                </select>
+            </div>
+
+            <div class="form-grupo">
+                <label for="input-quantidade">Quantidade: <span class="obrigatorio" aria-hidden="true">*</span></label>
+                <input type="number" id="input-quantidade" name="quantidade" step="0.1" min="0.1" placeholder="Ex. 5.0" required aria-required="true">
+            </div>
+
+            <div class="form-grupo">
+                <label for="input-motivo">Motivo / Observação:</label>
+                <input type="text" id="input-motivo" name="motivo" placeholder="Ex: Compra semanal, lote novo">
+            </div>
+
+            <button type="submit" class="btn btn-primario" id="btn-enviar-movimentacao">
+                Registrar no Banco
+            </button>
+        </form>
+    </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{url_for('static',filename='js/estoque.js') }}"></script>
+{% endblock %}

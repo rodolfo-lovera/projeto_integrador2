@@ -25,7 +25,7 @@ class Produto(db.Model):
     sku = db.Column(db.String(50), nullable=False, unique=True, index=True)
     nome = db.Column(db.String(120), nullable=False)
     unidade_medida = db.Column(db.String(20), nullable=False, default='UN')
-    estoque_minino = db.Column(db.Float, nullable=False, default=5.0)
+    estoque_minimo = db.Column(db.Float, nullable=False, default=5.0)
     preco_custo = db.Column(db.Float, nullable=True, default=0.0)
     ativo = db.Column(db.Boolean, default=True)
     
@@ -41,7 +41,7 @@ class Produto(db.Model):
             "sku": self.sku,
             "nome": self.nome,
             "unidade_medida":self.unidade_medida,
-            "estoque_minimo":self.estoque_minino,
+            "estoque_minimo":self.estoque_minimo,
             "preco_custo": self.preco_custo,
             "ativo": self.ativo,
             "categoria_id": self.categoria_id,

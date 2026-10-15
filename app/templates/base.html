@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{% block title %}IcewebCream 2.0{% endblock %}</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+        
+    </head>
+    <body>
+        <header class="main-header" role="banner">
+            <div class="container header-content">
+                <h1 class="logo">IceWebCream <span>2.0</span></h1>
+                <nav role="navigation" aria-label="Menu principal">
+                    <ul>
+                        <li><a href="/" aria-current="page">Estoque</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </header>
+        <main class="container" role="main" id="conteudo-principal">
+            {% block content %}{% endblock %}
+        </main>
+
+        <footer class="main-footer" role='contentinfo'>
+            <div class="container">
+                <p>&copy; 2026 IceWebCream - Projeto Integrador em Computação II (Univesp)</p>
+            </div>
+        </footer>
+
+        {% block scripts %}{% endblock %}
+    </body>
+</html>
