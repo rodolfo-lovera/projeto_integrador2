@@ -4,21 +4,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}IceWebCream 2.0{% endblock %}</title>
+    <title>{% block title %}IceWebCream 2.0 - Tishi Sorvetes{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 
 <body>
     <div class="app-wrapper">
-        <!-- Topo com Identidade e Saudação (Figura 5 do PI1) -->
+        <!-- Topo da Marca com Ícone de Sorvete (Padrão PI1) -->
         <header class="top-header" role="banner">
-            <h1 class="brand-title">IceWEBcream <span>2.0</span></h1>
-            <div class="user-status">
-                Olá, <strong>Gestor</strong> | <span id="current-date">--/--/----</span>
+            <div class="brand-container">
+                <span class="brand-icon" aria-hidden="true">🍨</span>
+                <h1 class="brand-title">IceWeb<span>Cream</span></h1>
             </div>
         </header>
 
-        <!-- Barra de Navegação entre Telas -->
+        <div class="sub-header-bar">
+            <span>Olá, <strong>Gestor Tishi</strong> | <span id="current-date">--/--/----</span></span>
+        </div>
+
+        <!-- Menu Superior Roxo Oficial (Figuras 12, 13 e 14) -->
         <nav class="main-nav" role="navigation" aria-label="Menu principal">
             <a href="/" id="nav-inicio">Início (Estoque)</a>
             <a href="/cadastro" id="nav-cadastro">Cadastrar Novo Produto</a>
@@ -26,18 +30,22 @@
             <a href="/compras" id="nav-compras">Relatório de Compras</a>
         </nav>
 
-        <!-- Conteúdo Principal -->
+        <!-- Conteúdo Injetado -->
         <main class="main-content" role="main" id="conteudo-principal">
             {% block content %}{% endblock %}
         </main>
+
+        <!-- Rodapé Oficial com a marca Tishi Sorvetes -->
+        <footer class="app-footer" role="contentinfo">
+            <span class="tishi-signature">🍧 Tishi Sorvetes</span>
+            <p>&copy; 2026 IceWebCream. Desenvolvido para o Projeto Integrador UNIVESP.</p>
+        </footer>
     </div>
 
     <script>
-        // Data formatada no topo como no protótipo
         const hoje = new Date();
         document.getElementById("current-date").textContent = hoje.toLocaleDateString("pt-BR");
 
-        // Destaque visual do link ativo
         const path = window.location.pathname;
         if (path === "/") document.getElementById("nav-inicio")?.classList.add("active");
         if (path === "/cadastro") document.getElementById("nav-cadastro")?.classList.add("active");

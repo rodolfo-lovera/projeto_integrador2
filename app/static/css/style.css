@@ -1,31 +1,30 @@
 :root {
-    /* Paleta Inspirada nos Protótipos do PI1 */
-    --bg-app: #eef2f6;
-    --bg-surface: #ffffff;
-    --primary-blue: #0284c7;
-    --primary-blue-hover: #0369a1;
-    --header-blue: #0077b6;
-    --table-header-blue: #0ea5e9;
-    --table-zebra-bg: #f0f9ff;
+    /* Identidade Visual Tishi Sorvetes / IceWebCream */
+    --tishi-purple: #2b0938;
+    /* Roxo do Menu Principal */
+    --tishi-purple-hover: #48145e;
+    --tishi-yellow: #facc15;
+    /* Amarelo Fachada Tishi (Botão Salvar / Destaques) */
+    --tishi-yellow-hover: #eab308;
+    --ice-cyan: #06b6d4;
+    /* Ciano da Logo IceWebCream e Bordas */
+    --ice-cyan-hover: #0891b2;
+    --tishi-pink: #ec4899;
+    /* Rosa da Marca Tishi */
 
-    /* Cores dos Cards da Visão do Dono */
-    --card-alert-border: #dc2626;
-    --card-alert-text: #b91c1c;
-    --card-total-border: #0284c7;
-    --card-total-text: #0369a1;
-    --card-date-border: #16a34a;
-    --card-date-text: #15803d;
-
-    /* Textos e Bordas */
-    --text-dark: #1e293b;
+    /* Cores Estruturais */
+    --bg-app: #f8fafc;
+    --bg-card: #ffffff;
+    --text-dark: #1e1b4b;
     --text-muted: #64748b;
-    --border-color: #cbd5e1;
+    --border-color: #e2e8f0;
+    --border-focus: #06b6d4;
 
-    /* Status de Alerta */
+    /* Alertas (WCAG Alto Contraste) */
     --badge-ok-bg: #dcfce7;
-    --badge-ok-color: #166534;
+    --badge-ok-color: #15803d;
     --badge-alert-bg: #fee2e2;
-    --badge-alert-color: #991b1b;
+    --badge-alert-color: #b91c1c;
 }
 
 * {
@@ -35,90 +34,184 @@
 }
 
 body {
-    font-family: "Segoe UI", Roboto, -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
     background-color: var(--bg-app);
     color: var(--text-dark);
-    line-height: 1.5;
+    line-height: 1.6;
 }
 
-/* Container principal com borda no estilo moldura do protótipo */
+/* Moldura Centralizada da Aplicação */
 .app-wrapper {
-    max-width: 1100px;
+    max-width: 900px;
     margin: 1.5rem auto;
-    background-color: var(--bg-surface);
-    border: 2px solid #94a3b8;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    background-color: var(--bg-card);
+    border-radius: 16px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--border-color);
     overflow: hidden;
 }
 
-/* Cabeçalho estilo PI1 */
+/* 1. Cabeçalho com Logo IceWebCream */
 .top-header {
-    padding: 1rem 1.5rem;
-    display: flex;
-    justify-content: space-between;
+    padding: 1.5rem;
+    text-align: center;
+    background: #ffffff;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.brand-container {
+    display: inline-flex;
     align-items: center;
-    border-bottom: 2px solid var(--border-color);
-    background-color: #ffffff;
+    gap: 0.6rem;
+}
+
+.brand-icon {
+    font-size: 2rem;
 }
 
 .brand-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #0f172a;
-    font-family: monospace, sans-serif;
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--ice-cyan);
     letter-spacing: -0.5px;
 }
 
 .brand-title span {
-    color: var(--primary-blue);
+    color: var(--tishi-purple);
+    font-weight: 900;
 }
 
-.user-status {
-    font-family: monospace, sans-serif;
-    font-size: 0.95rem;
-    color: var(--text-dark);
-}
-
-/* Barra de Navegação */
-.main-nav {
-    background-color: #f1f5f9;
-    padding: 0.6rem 1.5rem;
-    border-bottom: 1px solid var(--border-color);
+.sub-header-bar {
     display: flex;
-    gap: 1rem;
-    align-items: center;
+    justify-content: flex-end;
+    padding: 0.4rem 1.5rem;
+    background-color: #ffffff;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+/* 2. Barra de Navegação Roxa Oficial (Figuras 12, 13 e 14) */
+.main-nav {
+    background-color: var(--tishi-purple);
+    padding: 0.5rem 1rem;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
 }
 
 .main-nav a {
-    color: #334155;
+    color: #ffffff;
     text-decoration: none;
+    font-size: 0.9rem;
     font-weight: 600;
-    font-size: 0.95rem;
-    padding: 0.3rem 0.8rem;
-    border-radius: 4px;
+    padding: 0.4rem 0.9rem;
+    border-radius: 6px;
     transition: all 0.2s ease;
 }
 
 .main-nav a:hover,
 .main-nav a.active {
-    background-color: var(--primary-blue);
-    color: #ffffff;
+    background-color: var(--tishi-purple-hover);
+    color: var(--tishi-yellow);
 }
 
+/* Área de Conteúdo */
 .main-content {
+    padding: 2rem 2.5rem;
+}
+
+/* Título de Seção com Linha Amarela Decorativa */
+.page-title {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--tishi-purple);
+    margin-bottom: 0.3rem;
+}
+
+.title-underline {
+    height: 3px;
+    width: 100%;
+    background: var(--tishi-yellow);
+    border-radius: 2px;
+    margin-bottom: 1.5rem;
+}
+
+/* 3. Estilização Completa dos Formulários (Cadastro e Movimentação) */
+.form-card {
+    max-width: 600px;
+    margin: 0 auto;
     padding: 1.5rem;
 }
 
-/* 3 Cards da Visão do Dono (Conforme Figura 5 do Relatório PI1) */
+/* Espaçamento dos Campos */
+.form-group {
+    margin-bottom: 1.5rem;
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text-dark, #1e1b4b);
+    margin-bottom: 0.4rem;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 1rem;
+    background-color: #ffffff;
+    color: #334155;
+    transition: all 0.2s ease;
+    outline: none;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    border-color: #06b6d4;
+    box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.2);
+}
+
+/* Botão Amarelo Oficial da Tishi Sorvetes */
+.btn-submit-tishi {
+    display: block;
+    width: 100%;
+    padding: 0.85rem 1.5rem;
+    background-color: #facc15;
+    color: #1e1b4b;
+    font-size: 1.05rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    transition: background-color 0.2s, transform 0.1s;
+    margin-top: 1.5rem;
+    text-align: center;
+}
+
+.btn-submit-tishi:hover {
+    background-color: #eab308;
+}
+
+.btn-submit-tishi:active {
+    transform: scale(0.99);
+}
+
+/* 4. Cards Informativos (Visão do Dono) */
 .owner-cards-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 1.25rem;
+    gap: 1rem;
     margin-bottom: 2rem;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 700px) {
     .owner-cards-grid {
         grid-template-columns: 1fr;
     }
@@ -126,46 +219,46 @@ body {
 
 .metric-card {
     background: #ffffff;
-    border-radius: 6px;
-    padding: 1rem;
+    border-radius: 8px;
+    padding: 1.2rem 1rem;
     text-align: center;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
 }
 
 .card-danger {
-    border: 2px solid var(--card-alert-border);
+    border: 2px solid #ef4444;
 }
 
 .card-danger .card-val {
-    color: var(--card-alert-text);
+    color: #dc2626;
 }
 
 .card-info {
-    border: 2px solid var(--card-total-border);
+    border: 2px solid var(--ice-cyan);
 }
 
 .card-info .card-val {
-    color: var(--card-total-text);
+    color: #0891b2;
 }
 
 .card-success {
-    border: 2px solid var(--card-date-border);
+    border: 2px solid #22c55e;
 }
 
 .card-success .card-val {
-    color: var(--card-date-text);
+    color: #16a34a;
 }
 
 .metric-card .card-lbl {
-    font-size: 0.9rem;
-    font-weight: 600;
+    font-size: 0.85rem;
+    font-weight: 700;
     text-transform: uppercase;
-    margin-bottom: 0.4rem;
+    color: #475569;
 }
 
 .metric-card .card-val {
-    font-size: 2rem;
-    font-weight: bold;
+    font-size: 2.2rem;
+    font-weight: 800;
     margin: 0.2rem 0;
 }
 
@@ -174,48 +267,48 @@ body {
     color: var(--text-muted);
 }
 
-/* Tabela Estilo Protótipo PI1 (Azul Vibrante) */
+/* 5. Tabela de Estoque (Estilo Figuras 12 e 14) */
 .table-container {
     overflow-x: auto;
-    border-radius: 6px;
+    border-radius: 8px;
     border: 1px solid var(--border-color);
+    background: #ffffff;
     margin-top: 1rem;
 }
 
 .custom-table {
     width: 100%;
     border-collapse: collapse;
-    text-align: left;
 }
 
 .custom-table th {
-    background-color: var(--table-header-blue);
-    color: #ffffff;
-    padding: 0.75rem 1rem;
-    font-weight: 600;
+    background-color: #f1f5f9;
+    color: var(--tishi-purple);
+    padding: 0.85rem 1rem;
+    font-weight: 700;
     font-size: 0.95rem;
+    border-bottom: 2px solid var(--border-color);
+    text-align: left;
 }
 
 .custom-table td {
-    padding: 0.75rem 1rem;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.custom-table tbody tr:nth-child(even) {
-    background-color: var(--table-zebra-bg);
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid #f1f5f9;
 }
 
 .custom-table tbody tr:hover {
-    background-color: #e0f2fe;
+    background-color: #f8fafc;
 }
 
-/* Badges de Situação / Status */
+/* Badges e Pílulas */
 .badge {
-    display: inline-block;
-    padding: 0.25rem 0.6rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.3rem 0.75rem;
     border-radius: 9999px;
     font-size: 0.85rem;
-    font-weight: 600;
+    font-weight: 700;
 }
 
 .badge-ok {
@@ -230,110 +323,78 @@ body {
     border: 1px solid #fca5a5;
 }
 
-/* Formulários */
-.form-card {
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    padding: 1.5rem;
-    background-color: #ffffff;
-}
-
-.form-group {
-    margin-bottom: 1rem;
-}
-
-.form-group label {
-    display: block;
-    font-weight: 600;
-    margin-bottom: 0.35rem;
-}
-
-.form-group input,
-.form-group select {
-    width: 100%;
-    padding: 0.6rem;
-    border: 1px solid var(--border-color);
+/* 6. Lista com Barra Lateral Ciano (Padrão Figuras 12 e 14 do PI1) */
+.item-card-cyan {
+    border-left: 4px solid var(--ice-cyan);
+    background: #ffffff;
+    padding: 1rem 1.25rem;
+    margin-bottom: 0.75rem;
     border-radius: 4px;
-    font-size: 1rem;
-    background-color: #fff;
+    border-top: 1px solid #f1f5f9;
+    border-right: 1px solid #f1f5f9;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-.form-group input:focus,
-.form-group select:focus {
-    outline: 2px solid var(--primary-blue);
-    border-color: transparent;
-}
-
-/* Botões Estilo PI1 */
-.btn {
-    display: inline-block;
-    padding: 0.6rem 1.4rem;
-    border-radius: 6px;
-    font-size: 0.95rem;
-    font-weight: 600;
-    border: 1px solid transparent;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-
-.btn-primary {
-    background-color: #bae6fd;
+/* Botões Auxiliares */
+.btn-refresh {
+    background-color: #e0f2fe;
     color: #0369a1;
-    border-color: #0284c7;
+    border: 1px solid #bae6fd;
+    padding: 0.4rem 0.9rem;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
 }
 
-.btn-primary:hover {
-    background-color: #7dd3fc;
+.btn-refresh:hover {
+    background-color: #bae6fd;
 }
 
-.btn-action {
-    background-color: var(--primary-blue);
-    color: #ffffff;
+/* Mensagens de Feedback */
+.alerta {
+    padding: 0.85rem 1.2rem;
+    border-radius: 6px;
+    margin-bottom: 1.25rem;
+    font-weight: 600;
+    font-size: 0.95rem;
 }
 
-.btn-action:hover {
-    background-color: var(--primary-blue-hover);
-}
-
-.btn-back {
-    background-color: #e2e8f0;
-    color: #334155;
-    border-color: #cbd5e1;
-}
-
-.btn-back:hover {
-    background-color: #cbd5e1;
-}
-
-/* Alertas de Feedback */
-.alert-box {
-    padding: 0.75rem 1rem;
-    border-radius: 4px;
-    margin-bottom: 1rem;
-    font-weight: 500;
-}
-
-.alert-box.success {
-    background-color: var(--badge-ok-bg);
-    color: var(--badge-ok-color);
+.alerta-sucesso {
+    background-color: #dcfce7;
+    color: #166534;
     border: 1px solid #86efac;
 }
 
-.alert-box.danger {
-    background-color: var(--badge-alert-bg);
-    color: var(--badge-alert-color);
+.alerta-erro {
+    background-color: #fee2e2;
+    color: #991b1b;
     border: 1px solid #fca5a5;
 }
 
-.d-none {
+.oculto {
     display: none;
 }
 
-/* Foco de Acessibilidade */
-a:focus-visible,
-button:focus-visible,
-input:focus-visible,
-select:focus-visible {
-    outline: 3px solid #0284c7;
-    outline-offset: 2px;
+.obrigatorio {
+    color: #dc2626;
+}
+
+/* 7. Rodapé com Assinatura da Sorveteria */
+.app-footer {
+    text-align: center;
+    padding: 1.5rem;
+    border-top: 1px solid #f1f5f9;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+.tishi-signature {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--tishi-pink);
+    margin-bottom: 0.3rem;
+    display: block;
 }

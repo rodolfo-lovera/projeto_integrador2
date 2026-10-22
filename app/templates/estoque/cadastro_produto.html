@@ -1,34 +1,33 @@
 {% extends "base.html" %}
 
-{% block title %}Cadastro de Produto - IceWebCream 2.0{% endblock %}
+{% block title %}Cadastrar Novo Produto - IceWebCream 2.0{% endblock %}
 
 {% block content %}
-<section class="card">
-    <div class="card-header">
-        <h2>Cadastro de Produto</h2>
-    </div>
+<div class="form-card">
+    <h2 class="page-title">Cadastro de Produto</h2>
+    <div class="title-underline"></div>
 
     <div id="mensagem-status" class="alerta oculto" role="status" aria-live="polite"></div>
 
-    <form id="form-cadastro-produto" novalidate style="max-width: 600px; margin-top: 1rem;">
-        <div class="form-grupo">
+    <form id="form-cadastro-produto" novalidate>
+        <div class="form-group">
             <label for="sku">Código SKU: <span class="obrigatorio">*</span></label>
             <input type="text" id="sku" name="sku" required placeholder="Ex: SORV-CHOC-01">
         </div>
 
-        <div class="form-grupo">
+        <div class="form-group">
             <label for="nome">Descrição / Nome do Produto: <span class="obrigatorio">*</span></label>
             <input type="text" id="nome" name="nome" required placeholder="Ex: Calda de Chocolate">
         </div>
 
-        <div class="form-grupo">
+        <div class="form-group">
             <label for="categoria_id">Categoria: <span class="obrigatorio">*</span></label>
             <select id="categoria_id" name="categoria_id" required>
                 <option value="">Carregando categorias...</option>
             </select>
         </div>
 
-        <div class="form-grupo">
+        <div class="form-group">
             <label for="unidade_medida">Unidade de Medida: <span class="obrigatorio">*</span></label>
             <select id="unidade_medida" name="unidade_medida" required>
                 <option value="UN">Unidades</option>
@@ -38,19 +37,19 @@
             </select>
         </div>
 
-        <div class="form-grupo">
+        <div class="form-group">
             <label for="estoque_minimo">Estoque Mínimo para Alerta: <span class="obrigatorio">*</span></label>
             <input type="number" id="estoque_minimo" name="estoque_minimo" step="0.1" value="5.0" required>
         </div>
 
-        <div class="form-grupo">
+        <div class="form-group">
             <label for="preco_custo">Preço de Custo (R$):</label>
             <input type="number" id="preco_custo" name="preco_custo" step="0.01" value="0.00">
         </div>
 
-        <button type="submit" class="btn btn-primario" style="margin-top: 1rem;">Salvar Produto</button>
+        <button type="submit" class="btn-submit-tishi">Salvar Produto</button>
     </form>
-</section>
+</div>
 {% endblock %}
 
 {% block scripts %}
@@ -67,11 +66,10 @@
             setTimeout(() => msg.classList.add("oculto"), 4000);
         }
 
-        // Carregar Categorias via API
         try {
             const res = await fetch("/api/categorias");
             const categorias = await res.json();
-            selectCat.innerHTML = '<option value="">Selecione...</option>';
+            selectCat.innerHTML = '<option value="">Selecione a categoria...</option>';
             categorias.forEach(c => {
                 const opt = document.createElement("option");
                 opt.value = c.id;
@@ -82,7 +80,6 @@
             selectCat.innerHTML = '<option value="">Erro ao carregar categorias</option>';
         }
 
-        // Salvar Produto via Fetch API
         form.addEventListener("submit", async (e) => {
             e.preventDefault();
             const payload = {
