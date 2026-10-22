@@ -1,86 +1,60 @@
 {% extends "base.html" %}
 
-{% block title %}Gestão de Estoque - IceWebCream 2.0{% endblock%}
+{% block title %}Visão do Dono - IceWebCream 2.0{% endblock %}
 
 {% block content %}
-<section class="dashboard-header">
-    <h2>Controle de Suprimentos e Estoques</h2>
-    <p>Painel com atualização em tempo real de produtos e níveis de reposição</p>
+<!-- Cards da Visão do Dono (Conforme Figura 5 do PI1) -->
+<section class="owner-cards-grid" aria-label="Resumo do Estoque">
+    <!-- Card 1: Itens em Alerta (Vermelho) -->
+    <article class="metric-card card-danger">
+        <div class="card-lbl">Itens em Alerta</div>
+        <div id="card-total-alertas" class="card-val" aria-live="polite">0</div>
+        <div class="card-desc">Estoque abaixo do mínimo</div>
+    </article>
+
+    <!-- Card 2: Total de Produtos (Azul) -->
+    <article class="metric-card card-info">
+        <div class="card-lbl">Total de Produtos</div>
+        <div id="card-total-produtos" class="card-val" aria-live="polite">0</div>
+        <div class="card-desc">Produtos cadastrados</div>
+    </article>
+
+    <!-- Card 3: Data de Atualização (Verde) -->
+    <article class="metric-card card-success">
+        <div class="card-lbl">Última Atualização</div>
+        <div id="card-data-atualizacao" class="card-val" style="font-size: 1.5rem; margin-top: 0.6rem;">Hoje</div>
+        <div class="card-desc">Sincronizado via Banco</div>
+    </article>
 </section>
 
-<!-- Fedback visual para mensagens de sucesso/ erro da API -->
-<div id="mensagem-status" class="alerta oculto" role="status" aria-live="polite"></div>
+<!-- Catálogo Geral e Saldo Físico -->
+<section>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+        <h2 style="font-size: 1.25rem;">Lista Geral de Insumos e Produtos</h2>
+        <button id="btn-atualizar" class="btn btn-primary" type="button">🔄 Atualizar Lista</button>
+    </div>
 
-<div class="grid-layout">
-    <!-- Coluna 1: Tabela Dinâmica de Produtos -->
-    <section class="card" aria-labelledby="titulo-tabela">
-        <div class="card-header">
-            <h3 id="titulo-tabela">Itens em estoque</h3>
-            <button id="btn-atualizar" class="btn btn-secundario" type="button" aria-label="Atualizar lista de itens">
-                Atualizar Lista
-            </button>
-        </div>
-
-        <div class="table-responsive">
-            <table class="tabela-estoque" aria-describedby="titulo-tabela">
-                <thead>
-                    <tr>
-                        <th scope="col">SKU</th>
-                        <th scope="col">Produto</th>
-                        <th scope="col">Saldo Atual</th>
-                        <th scope="col">Mínimo</th>
-                        <th scope="col">Status</th>
-                    </tr>
-                </thead>
-                <tbody id="tabela-produtos-corpo">
-                    <tr>
-                        <td colspan="5" class="texto-centro">Carregando catálogo de produtos...</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </section>
-
-    <!-- Coluna 2: Formulário Assíncrono de Movimentação -->
-    <section class="card" aria-labelledby="titulo-movimentacao">
-        <div class="card-header">
-            <h3 id="titulo-movimentacao">Lançar Movimentação</h3>
-        </div>
-
-        <form id="form-movimentacao" novilidate>
-            <div class="form-grupo">
-                <label for="select-produto">Produto: <span class="obrigatorio" aria-hidden="true">*</span></label>
-                <select id="select-produto" name="produto_id" required aria-required="true">
-                    <option value="">Selecione um produto...</option>
-                </select>
-            </div>
-
-            <div class="form-grupo">
-                <label for="select tipo">Tipo de Operação: <span class="obrigatorio" aria-hidden="true">*</span></label>
-                <select id="select-tipo" name="tipo" required aria-required="true">
-                    <option value="ENTRADA">Entrada (chegada de matéria-prima)</option>
-                    <option value="SAIDA">Saída (Consumo ou descarte)</option>
-                </select>
-            </div>
-
-            <div class="form-grupo">
-                <label for="input-quantidade">Quantidade: <span class="obrigatorio" aria-hidden="true">*</span></label>
-                <input type="number" id="input-quantidade" name="quantidade" step="0.1" min="0.1" placeholder="Ex. 5.0" required aria-required="true">
-            </div>
-
-            <div class="form-grupo">
-                <label for="input-motivo">Motivo / Observação:</label>
-                <input type="text" id="input-motivo" name="motivo" placeholder="Ex: Compra semanal, lote novo">
-            </div>
-
-            <button type="submit" class="btn btn-primario" id="btn-enviar-movimentacao">
-                Registrar no Banco
-            </button>
-        </form>
-    </section>
-</div>
+    <div class="table-container">
+        <table class="custom-table" aria-label="Tabela de Produtos">
+            <thead>
+                <tr>
+                    <th scope="col">SKU</th>
+                    <th scope="col">Produto</th>
+                    <th scope="col">Saldo Atual</th>
+                    <th scope="col">Estoque Mínimo</th>
+                    <th scope="col">Situação</th>
+                </tr>
+            </thead>
+            <tbody id="tabela-produtos-corpo">
+                <tr>
+                    <td colspan="5" style="text-align: center; padding: 1.5rem;">Carregando catálogo de produtos...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
 {% endblock %}
 
 {% block scripts %}
-<script src="{{url_for('static',filename='js/estoque.js') }}"></script>
+<script src="{{ url_for('static', filename='js/estoque.js') }}"></script>
 {% endblock %}

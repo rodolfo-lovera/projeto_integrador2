@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}Relatório de Compras - IceWebCream 2.0{% endblock %}
+
+{% block content %}
+<section class="card">
+    <div class="card-header">
+        <h2>Relatório Semanal de Reposição</h2>
+        <button id="btn-atualizar-compras" class="btn btn-secundario" type="button">🔄 Atualizar Lista</button>
+    </div>
+    <p style="margin-top: 0.5rem; color: #64748b;">
+        <em>Itens que atingiram ou estão abaixo do estoque mínimo definido.</em>
+    </p>
+
+    <div id="lista-compras-container" style="margin-top: 1.5rem;">
+        <p class="texto-centro">Carregando sugestões de compras...</p>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const container = document.getElementById("lista-compras-container");
+        const btn = document.getElementById("btn-atualizar-compras");
+
+        async function carregarCompras() {
+            try {
+                const res = await fetch("/api/produtos");
+                const produtos = await res.json();
+
+                // Filtra produtos que necessitam de reposição
+                const itensParaComprar = produtos.filter(p => p.precisa_reposicao);
+
+                if (itensParaComprar.length === 0) {
+                    container.innerHTML = `
+                    <div class="alerta alerta-sucesso">
+                        ✅ Nenhum produto abaixo do estoque mínimo. Tudo abastecido!
+                    </div>`;
+                    return;
+                }
+
+                container.innerHTML = `
+                <ul style="list-style: none; padding: 0;">
+                    ${itensParaComprar.map(p => {
+                    const falta = (p.estoque_minimo - p.quantidade_atual) > 0
+                        ? (p.estoque_minimo - p.quantidade_atual).toFixed(1)
+                        : (p.estoque_minimo).toFixed(1);
+
+                    return `
+                            <li style="border-bottom: 1px solid var(--borda); padding: 1rem 0;">
+                                <strong>Produto:</strong> ${p.sku} -${p.nome} <br>
+                                <strong>Sugerido para Comprar:</strong> <span style="color: var(--cor-alerta); font-weight: bold;">${falta}${p.unidade_medida}</span><br>
+                                <small style="color: #64748b;">(Estoque Atual: ${p.quantidade_atual.toFixed(1)}${p.unidade_medida} | Mínimo: ${p.estoque_minimo.toFixed(1)}${p.unidade_medida})</small>
+                            </li>
+                        `;
+                }).join("")}
+                </ul>
+            `;
+            } catch (e) {
+                container.innerHTML = `<p class="texto-centro" style="color: red;">Erro ao carregar relatório.</p>`;
+            }
+        }
+
+        btn.addEventListener("click", carregarCompras);
+        carregarCompras();
+    });
+</script>
+{% endblock %}

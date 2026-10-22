@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Registrar Movimentação - IceWebCream 2.0{% endblock %}
+
+{% block content %}
+<section class="card" style="max-width: 600px; margin: 0 auto;">
+    <div class="card-header">
+        <h2>Registrar Entrada, Saída ou Ajuste de Estoque</h2>
+    </div>
+
+    <div id="mensagem-status" class="alerta oculto" role="status" aria-live="polite"></div>
+
+    <form id="form-movimentacao-dedicado" novalidate style="margin-top: 1rem;">
+        <div class="form-grupo">
+            <label for="select-produto">Produto: <span class="obrigatorio">*</span></label>
+            <select id="select-produto" name="produto_id" required>
+                <option value="">Carregando produtos...</option>
+            </select>
+        </div>
+
+        <div class="form-grupo">
+            <label for="select-tipo">Tipo de Movimentação: <span class="obrigatorio">*</span></label>
+            <select id="select-tipo" name="tipo" required>
+                <option value="ENTRADA">Entrada (Chegou mercadoria nova)</option>
+                <option value="SAIDA">Saída (Consumo, perda ou desperdício)</option>
+                <option value="AJUSTE">Ajuste (Contagem física na prateleira)</option>
+            </select>
+        </div>
+
+        <div class="form-grupo">
+            <label for="input-quantidade">Quantidade: <span class="obrigatorio">*</span></label>
+            <input type="number" id="input-quantidade" name="quantidade" step="0.1" min="0.1" placeholder="Ex: 5.0"
+                required>
+        </div>
+
+        <div class="form-grupo">
+            <label for="input-motivo">Observação (Opcional):</label>
+            <input type="text" id="input-motivo" name="motivo" placeholder="Ex: Compra da semana, validade vencida...">
+        </div>
+
+        <button type="submit" class="btn btn-primario" style="margin-top: 1rem;">Salvar Movimentação</button>
+    </form>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener("DOMContentLoaded", async () => {
+        const selectProd = document.getElementById("select-produto");
+        const form = document.getElementById("form-movimentacao-dedicado");
+        const msg = document.getElementById("mensagem-status");
+
+        function exibirMsg(texto, tipo = "sucesso") {
+            msg.textContent = texto;
+            msg.className = `alerta alerta-${tipo}`;
+            msg.classList.remove("oculto");
+            setTimeout(() => msg.classList.add("oculto"), 4000);
+        }
+
+        try {
+            const res = await fetch("/api/produtos");
+            const produtos = await res.json();
+            selectProd.innerHTML = '<option value="">Selecione o produto...</option>';
+            produtos.forEach(p => {
+                const opt = document.createElement("option");
+                opt.value = p.id;
+                opt.textContent = `${p.sku} - ${p.nome} (Atual: ${p.quantidade_atual} ${p.unidade_medida})`;
+                selectProd.appendChild(opt);
+            });
+        } catch (e) {
+            selectProd.innerHTML = '<option value="">Erro ao carregar produtos</option>';
+        }
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const payload = {
+                produto_id: parseInt(selectProd.value),
+                tipo: document.getElementById("select-tipo").value,
+                quantidade: parseFloat(document.getElementById("input-quantidade").value),
+                motivo: document.getElementById("input-motivo").value.trim()
+            };
+
+            if (!payload.produto_id || isNaN(payload.quantidade) || payload.quantidade < 0) {
+                exibirMsg("Informe um produto e quantidade válida.", "erro");
+                return;
+            }
+
+            try {
+                const res = await fetch("/api/movimentacoes", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.erro || "Falha ao registrar.");
+
+                exibirMsg(data.mensagem, "sucesso");
+                form.reset();
+            } catch (err) {
+                exibirMsg(err.message, "erro");
+            }
+        });
+    });
+</script>
+{% endblock %}

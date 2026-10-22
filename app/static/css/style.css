@@ -1,14 +1,31 @@
 :root {
-    --cor-fundo: #f4f6f8;
-    --cor-superficie: #ffffff;
-    --cor-texto: #1f2937;
-    --cor-primaria: #0284c7;
-    --cor-primaria-hover: #0369a1;
-    --cor-sucesso: #166534;
-    --cor-sucesso-fundo: #dcfce7;
-    --cor-alerta: #991b1b;
-    --cor-alerta-fundo: #fee2e2;
-    --borda: #e5e7eb;
+    /* Paleta Inspirada nos Protótipos do PI1 */
+    --bg-app: #eef2f6;
+    --bg-surface: #ffffff;
+    --primary-blue: #0284c7;
+    --primary-blue-hover: #0369a1;
+    --header-blue: #0077b6;
+    --table-header-blue: #0ea5e9;
+    --table-zebra-bg: #f0f9ff;
+
+    /* Cores dos Cards da Visão do Dono */
+    --card-alert-border: #dc2626;
+    --card-alert-text: #b91c1c;
+    --card-total-border: #0284c7;
+    --card-total-text: #0369a1;
+    --card-date-border: #16a34a;
+    --card-date-text: #15803d;
+
+    /* Textos e Bordas */
+    --text-dark: #1e293b;
+    --text-muted: #64748b;
+    --border-color: #cbd5e1;
+
+    /* Status de Alerta */
+    --badge-ok-bg: #dcfce7;
+    --badge-ok-color: #166534;
+    --badge-alert-bg: #fee2e2;
+    --badge-alert-color: #991b1b;
 }
 
 * {
@@ -18,94 +35,181 @@
 }
 
 body {
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background-color: var(--cor-fundo);
-    color: var(--cor-texto);
+    font-family: "Segoe UI", Roboto, -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+    background-color: var(--bg-app);
+    color: var(--text-dark);
     line-height: 1.5;
 }
 
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 1.5rem;
+/* Container principal com borda no estilo moldura do protótipo */
+.app-wrapper {
+    max-width: 1100px;
+    margin: 1.5rem auto;
+    background-color: var(--bg-surface);
+    border: 2px solid #94a3b8;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
 }
 
-.main-header {
-    background-color: #0f172a;
-    color: #ffffff;
-}
-
-.header-content {
+/* Cabeçalho estilo PI1 */
+.top-header {
+    padding: 1rem 1.5rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-top: 1rem;
-    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--border-color);
+    background-color: #ffffff;
 }
 
-.logo span {
-    color: #38bdf8;
+.brand-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #0f172a;
+    font-family: monospace, sans-serif;
+    letter-spacing: -0.5px;
 }
 
-.main-header a {
-    color: #ffffff;
+.brand-title span {
+    color: var(--primary-blue);
+}
+
+.user-status {
+    font-family: monospace, sans-serif;
+    font-size: 0.95rem;
+    color: var(--text-dark);
+}
+
+/* Barra de Navegação */
+.main-nav {
+    background-color: #f1f5f9;
+    padding: 0.6rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.main-nav a {
+    color: #334155;
     text-decoration: none;
-    font-weight: 500;
+    font-weight: 600;
+    font-size: 0.95rem;
+    padding: 0.3rem 0.8rem;
+    border-radius: 4px;
+    transition: all 0.2s ease;
 }
 
-.dashboard-header {
+.main-nav a:hover,
+.main-nav a.active {
+    background-color: var(--primary-blue);
+    color: #ffffff;
+}
+
+.main-content {
+    padding: 1.5rem;
+}
+
+/* 3 Cards da Visão do Dono (Conforme Figura 5 do Relatório PI1) */
+.owner-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
     margin-bottom: 2rem;
 }
 
-.grid-layout {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 1.5rem;
-}
-
 @media (max-width: 768px) {
-    .grid-layout {
+    .owner-cards-grid {
         grid-template-columns: 1fr;
     }
 }
 
-.card {
-    background: var(--cor-superficie);
-    border: 1px solid var(--borda);
-    border-radius: 8px;
-    padding: 1.5rem;
+.metric-card {
+    background: #ffffff;
+    border-radius: 6px;
+    padding: 1rem;
+    text-align: center;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
-.card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.25rem;
-    border-bottom: 1px solid var(--borda);
-    padding-bottom: 0.75rem;
+.card-danger {
+    border: 2px solid var(--card-alert-border);
 }
 
-.table-responsive {
+.card-danger .card-val {
+    color: var(--card-alert-text);
+}
+
+.card-info {
+    border: 2px solid var(--card-total-border);
+}
+
+.card-info .card-val {
+    color: var(--card-total-text);
+}
+
+.card-success {
+    border: 2px solid var(--card-date-border);
+}
+
+.card-success .card-val {
+    color: var(--card-date-text);
+}
+
+.metric-card .card-lbl {
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+}
+
+.metric-card .card-val {
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 0.2rem 0;
+}
+
+.metric-card .card-desc {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+/* Tabela Estilo Protótipo PI1 (Azul Vibrante) */
+.table-container {
     overflow-x: auto;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    margin-top: 1rem;
 }
 
-.tabela-estoque {
+.custom-table {
     width: 100%;
     border-collapse: collapse;
     text-align: left;
 }
 
-.tabela-estoque th, .tabela-estoque td {
+.custom-table th {
+    background-color: var(--table-header-blue);
+    color: #ffffff;
     padding: 0.75rem 1rem;
-    border-bottom: 1px solid var(--borda);
-}
-
-.tabela-estoque th {
-    background-color: #f8fafc;
     font-weight: 600;
+    font-size: 0.95rem;
 }
 
+.custom-table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.custom-table tbody tr:nth-child(even) {
+    background-color: var(--table-zebra-bg);
+}
+
+.custom-table tbody tr:hover {
+    background-color: #e0f2fe;
+}
+
+/* Badges de Situação / Status */
 .badge {
     display: inline-block;
     padding: 0.25rem 0.6rem;
@@ -114,96 +218,122 @@ body {
     font-weight: 600;
 }
 
-.badge-normal {
-    background-color: var(--cor-sucesso-fundo);
-    color: var(--cor-sucesso);
-}
-
-.badge-alerta {
-    background-color: var(--cor-alerta-fundo);
-    color: var(--cor-alerta);
-}
-
-.form-grupo {
-    margin-bottom: 1rem;
-}
-
-.form-grupo label {
-    display: block;
-    margin-bottom: 0.35rem;
-    font-weight: 500;
-}
-
-.form-grupo input, .form-grupo select {
-    width: 100%;
-    padding: 0.6rem;
-    border: 1px solid var(--borda);
-    border-radius: 6px;
-    font-size: 1rem;
-}
-
-.btn {
-    cursor: pointer;
-    padding: 0.6rem 1.2rem;
-    border-radius: 6px;
-    font-weight: 500;
-    border: none;
-    transition: background 0.2s;
-}
-
-.btn-primario {
-    background-color: var(--cor-primaria);
-    color: #ffffff;
-    width: 100%;
-}
-
-.btn-primario:hover {
-    background-color: var(--cor-primaria-hover);
-}
-
-.btn-secundario {
-    background-color: #e2e8f0;
-    color: #334155;
-}
-
-.btn-secundario:hover {
-    background-color: #cbd5e1;
-}
-
-.alerta {
-    padding: 1rem;
-    border-radius: 6px;
-    margin-bottom: 1.5rem;
-    font-weight: 500;
-}
-
-.alerta-sucesso {
-    background-color: var(--cor-sucesso-fundo);
-    color: var(--cor-sucesso);
+.badge-ok {
+    background-color: var(--badge-ok-bg);
+    color: var(--badge-ok-color);
     border: 1px solid #86efac;
 }
 
-.alerta-erro {
-    background-color: var(--cor-alerta-fundo);
-    color: var(--cor-alerta);
+.badge-alert {
+    background-color: var(--badge-alert-bg);
+    color: var(--badge-alert-color);
     border: 1px solid #fca5a5;
 }
 
-.oculto {
+/* Formulários */
+.form-card {
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 1.5rem;
+    background-color: #ffffff;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.35rem;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 0.6rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 1rem;
+    background-color: #fff;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: 2px solid var(--primary-blue);
+    border-color: transparent;
+}
+
+/* Botões Estilo PI1 */
+.btn {
+    display: inline-block;
+    padding: 0.6rem 1.4rem;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-primary {
+    background-color: #bae6fd;
+    color: #0369a1;
+    border-color: #0284c7;
+}
+
+.btn-primary:hover {
+    background-color: #7dd3fc;
+}
+
+.btn-action {
+    background-color: var(--primary-blue);
+    color: #ffffff;
+}
+
+.btn-action:hover {
+    background-color: var(--primary-blue-hover);
+}
+
+.btn-back {
+    background-color: #e2e8f0;
+    color: #334155;
+    border-color: #cbd5e1;
+}
+
+.btn-back:hover {
+    background-color: #cbd5e1;
+}
+
+/* Alertas de Feedback */
+.alert-box {
+    padding: 0.75rem 1rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    font-weight: 500;
+}
+
+.alert-box.success {
+    background-color: var(--badge-ok-bg);
+    color: var(--badge-ok-color);
+    border: 1px solid #86efac;
+}
+
+.alert-box.danger {
+    background-color: var(--badge-alert-bg);
+    color: var(--badge-alert-color);
+    border: 1px solid #fca5a5;
+}
+
+.d-none {
     display: none;
 }
 
-.texto-centro {
-    text-align: center;
-}
-
-.obrigatorio {
-    color: var(--cor-alerta);
-}
-
-.main-footer {
-    margin-top: 3rem;
-    text-align: center;
-    color: #64748b;
-    font-size: 0.9rem;
+/* Foco de Acessibilidade */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+    outline: 3px solid #0284c7;
+    outline-offset: 2px;
 }

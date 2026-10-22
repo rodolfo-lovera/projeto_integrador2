@@ -71,6 +71,7 @@ class Movimentacao(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     produto_id = db.Column(db.Integer, db.ForeignKey("produtos.id"), nullable=False)
     tipo = db.Column(db.String(10), nullable=False)
+    quantidade = db.Column(db.Float, nullable=False)
     motivo = db.Column(db.String(150), nullable=True)
     data_hora = db.Column(db.DateTime, default=datetime.utcnow)
     

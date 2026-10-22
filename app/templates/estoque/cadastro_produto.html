@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block title %}Cadastro de Produto - IceWebCream 2.0{% endblock %}
+
+{% block content %}
+<section class="card">
+    <div class="card-header">
+        <h2>Cadastro de Produto</h2>
+    </div>
+
+    <div id="mensagem-status" class="alerta oculto" role="status" aria-live="polite"></div>
+
+    <form id="form-cadastro-produto" novalidate style="max-width: 600px; margin-top: 1rem;">
+        <div class="form-grupo">
+            <label for="sku">Código SKU: <span class="obrigatorio">*</span></label>
+            <input type="text" id="sku" name="sku" required placeholder="Ex: SORV-CHOC-01">
+        </div>
+
+        <div class="form-grupo">
+            <label for="nome">Descrição / Nome do Produto: <span class="obrigatorio">*</span></label>
+            <input type="text" id="nome" name="nome" required placeholder="Ex: Calda de Chocolate">
+        </div>
+
+        <div class="form-grupo">
+            <label for="categoria_id">Categoria: <span class="obrigatorio">*</span></label>
+            <select id="categoria_id" name="categoria_id" required>
+                <option value="">Carregando categorias...</option>
+            </select>
+        </div>
+
+        <div class="form-grupo">
+            <label for="unidade_medida">Unidade de Medida: <span class="obrigatorio">*</span></label>
+            <select id="unidade_medida" name="unidade_medida" required>
+                <option value="UN">Unidades</option>
+                <option value="KG">Kg</option>
+                <option value="L">Litros</option>
+                <option value="CX">Caixa</option>
+            </select>
+        </div>
+
+        <div class="form-grupo">
+            <label for="estoque_minimo">Estoque Mínimo para Alerta: <span class="obrigatorio">*</span></label>
+            <input type="number" id="estoque_minimo" name="estoque_minimo" step="0.1" value="5.0" required>
+        </div>
+
+        <div class="form-grupo">
+            <label for="preco_custo">Preço de Custo (R$):</label>
+            <input type="number" id="preco_custo" name="preco_custo" step="0.01" value="0.00">
+        </div>
+
+        <button type="submit" class="btn btn-primario" style="margin-top: 1rem;">Salvar Produto</button>
+    </form>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener("DOMContentLoaded", async () => {
+        const selectCat = document.getElementById("categoria_id");
+        const form = document.getElementById("form-cadastro-produto");
+        const msg = document.getElementById("mensagem-status");
+
+        function exibirMsg(texto, tipo = "sucesso") {
+            msg.textContent = texto;
+            msg.className = `alerta alerta-${tipo}`;
+            msg.classList.remove("oculto");
+            setTimeout(() => msg.classList.add("oculto"), 4000);
+        }
+
+        // Carregar Categorias via API
+        try {
+            const res = await fetch("/api/categorias");
+            const categorias = await res.json();
+            selectCat.innerHTML = '<option value="">Selecione...</option>';
+            categorias.forEach(c => {
+                const opt = document.createElement("option");
+                opt.value = c.id;
+                opt.textContent = c.nome;
+                selectCat.appendChild(opt);
+            });
+        } catch (e) {
+            selectCat.innerHTML = '<option value="">Erro ao carregar categorias</option>';
+        }
+
+        // Salvar Produto via Fetch API
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const payload = {
+                sku: document.getElementById("sku").value.trim(),
+                nome: document.getElementById("nome").value.trim(),
+                categoria_id: parseInt(selectCat.value),
+                unidade_medida: document.getElementById("unidade_medida").value,
+                estoque_minimo: parseFloat(document.getElementById("estoque_minimo").value),
+                preco_custo: parseFloat(document.getElementById("preco_custo").value || 0)
+            };
+
+            if (!payload.sku || !payload.nome || !payload.categoria_id) {
+                exibirMsg("Preencha todos os campos obrigatórios.", "erro");
+                return;
+            }
+
+            try {
+                const res = await fetch("/api/produtos", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.erro || "Falha ao cadastrar.");
+
+                exibirMsg(`Produto '${data.nome}' cadastrado com sucesso!`, "sucesso");
+                form.reset();
+            } catch (err) {
+                exibirMsg(err.message, "erro");
+            }
+        });
+    });
+</script>
+{% endblock %}
