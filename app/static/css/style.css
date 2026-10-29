@@ -398,3 +398,55 @@ body {
     margin-bottom: 0.3rem;
     display: block;
 }
+
+/* ===================
+    Acessibilidade    
+    */
+
+/* 1. Link para navegação teclado */
+.link-pular-conteudo {
+    position: absolute;
+    top: -60px;
+    left: 10px;
+    background: var(--tishi-purple, #2b0938);
+    color: var(--tishi-yellow, #facc15);
+    padding: 0.6rem 1.2rem;
+    z-index:9999;
+    text-decoration: none;
+    font-weight: 700;
+    border-radius: 0 0 6px 6px;
+    border: 2px solid var(--tishi-yellow, #facc15);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: top 0.2s ease-in-out;
+}
+
+.link-pular-conteudo:focus {
+    top: 0;
+}
+
+/* 2. Indicador de foco para navegar com tecla TAB*/
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+    outline: 3px solid #06b6d4 !important;
+    outline-offset: 3px !important;
+}
+
+/* 3. Remoção de contorne azul quando clicado */
+:focus:not(:focus-visible) {
+    outline: none;
+}
+
+/* 4. Badges com contrates*/
+.badge-ok {
+    background-color: #dcfce7;
+    color: #14532d;
+    border: 1px solid #86efac;    
+}
+
+.badge-alert {
+    background-color: #fee2e2;
+    color: #7f1d1d;
+    border: 1px solid #f87171;
+}
