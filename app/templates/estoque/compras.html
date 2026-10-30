@@ -6,14 +6,17 @@
 <section>
     <div style="display: flex; justify-content: space-between; align-items: center;">
         <h2 class="page-title">Relatório Semanal de Reposição</h2>
-        <button id="btn-atualizar-compras" class="btn-refresh" type="button" aria-label="Atualizar lista semanal de reposição de compras">🔄 Atualizar Lista</button>
+        <button id="btn-atualizar-compras" class="btn-refresh" type="button" aria-label="Atualizar lista semanal de reposição de compras">
+            🔄 Atualizar Lista
+        </button>
     </div>
     <div class="title-underline"></div>
     <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem;">
-        <em>Itens que atingiram o estoque mínimo, organizados para compra imediata.</em>
+        <em>Itens que atingiram o estoque mínimo, agrupados por fornecedor para envio automatizado de pedidos.</em>
     </p>
 
-    <div id="lista-compras-container">
+    <!-- Lista Dinâmica de Compras e Envio de Pedidos -->
+    <div id="lista-compras-container" aria-live="polite">
         <p style="text-align: center; color: var(--text-muted);">Carregando sugestões de compras...</p>
     </div>
 </section>
@@ -21,52 +24,112 @@
 
 {% block scripts %}
 <script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const container = document.getElementById("lista-compras-container");
-        const btn = document.getElementById("btn-atualizar-compras");
+document.addEventListener("DOMContentLoaded", () => {
+    const container = document.getElementById("lista-compras-container");
+    const btn = document.getElementById("btn-atualizar-compras");
 
-        async function carregarCompras() {
-            try {
-                const res = await fetch("/api/produtos");
-                const produtos = await res.json();
+    async function carregarCompras() {
+        try {
+            const res = await fetch("/api/produtos");
+            if (!res.ok) throw new Error("Falha ao consultar catálogo.");
+            const produtos = await res.json();
 
-                const itensParaComprar = produtos.filter(p => p.precisa_reposicao);
+            // Filtra apenas os produtos que necessitam de reposição
+            const itensCriticos = produtos.filter(p => p.precisa_reposicao);
 
-                if (itensParaComprar.length === 0) {
-                    container.innerHTML = `
+            if (itensCriticos.length === 0) {
+                container.innerHTML = `
                     <div class="alerta alerta-sucesso">
-                        ✅ Nenhum produto abaixo do estoque mínimo. Tudo abastecido!
+                        ✅ Nenhum produto abaixo do estoque mínimo. O estoque está 100% abastecido!
                     </div>`;
-                    return;
-                }
+                return;
+            }
 
-                container.innerHTML = itensParaComprar.map(p => {
-                    const falta = (p.estoque_minimo - p.quantidade_atual) > 0
-                        ? (p.estoque_minimo - p.quantidade_atual).toFixed(1)
+            // Agrupa os itens críticos por Fornecedor
+            const gruposPorFornecedor = {};
+            itensCriticos.forEach(p => {
+                const fornNome = p.fornecedor_nome || "Fornecedor Não Vinculado";
+                const fornTel = (p.fornecedor_telefone || "").replace(/\D/g, "");
+
+                if (!gruposPorFornecedor[fornNome]) {
+                    gruposPorFornecedor[fornNome] = {
+                        nome: fornNome,
+                        telefone: fornTel,
+                        itens: []
+                    };
+                }
+                gruposPorFornecedor[fornNome].itens.push(p);
+            });
+
+            // Renderiza os cards agrupados por fornecedor com o botão de WhatsApp
+            container.innerHTML = Object.values(gruposPorFornecedor).map(grupo => {
+                // Monta o texto dos itens para o corpo da mensagem do WhatsApp
+                let textoItens = "";
+                const htmlItens = grupo.itens.map(p => {
+                    const falta = (p.estoque_minimo - p.quantidade_atual) > 0 
+                        ? (p.estoque_minimo - p.quantidade_atual).toFixed(1) 
                         : (p.estoque_minimo).toFixed(1);
 
-                    return `
-                    <div class="item-card-cyan">
-                        <div>
-                            <strong>Produto:</strong> ${p.sku} - ${p.nome} <br>
-                            <small style="color: var(--text-muted);">(Estoque atual: ${p.quantidade_atual.toFixed(1)} / Mínimo: ${p.estoque_minimo.toFixed(1)} ${p.unidade_medida})</small>
-                        </div>
-                        <div style="text-align: right;">
-                            <span style="font-size: 0.9rem; color: #475569;">Comprar:</span>
-                            <span style="font-size: 1.25rem; font-weight: 800; color: #dc2626; margin-left: 0.3rem;">
-                                ${falta} ${p.unidade_medida}
-                            </span>
-                        </div>
-                    </div>
-                `;
-                }).join("");
-            } catch (e) {
-                container.innerHTML = `<p style="text-align: center; color: red;">Erro ao carregar relatório.</p>`;
-            }
-        }
+                    textoItens += `• ${p.nome} (SKU: ${p.sku}): Comprar ${falta} ${p.unidade_medida} (Saldo atual: ${p.quantidade_atual.toFixed(1)} / Mínimo: ${p.estoque_minimo.toFixed(1)})\n`;
 
+                    return `
+                        <li style="padding: 0.6rem 0; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <strong>${p.sku} - ${p.nome}</strong><br>
+                                <small style="color: var(--text-muted);">Estoque Atual: ${p.quantidade_atual.toFixed(1)} ${p.unidade_medida} | Mínimo: ${p.estoque_minimo.toFixed(1)} ${p.unidade_medida}</small>
+                            </div>
+                            <div style="text-align: right;">
+                                <span style="font-size: 0.85rem; color: #475569;">Comprar:</span>
+                                <span style="font-size: 1.15rem; font-weight: 800; color: #dc2626; margin-left: 0.3rem;">
+                                    ${falta} ${p.unidade_medida}
+                                </span>
+                            </div>
+                        </li>
+                    `;
+                }).join("");
+
+                // Montagem da mensagem padronizada para o WhatsApp
+                const mensagemWhatsApp = `Olá, ${grupo.nome}!\nAqui é da *Tishi Sorvetes*.\nGostaríamos de fazer o pedido de reposição dos seguintes itens:\n\n${textoItens}\nFavor confirmar o recebimento e o prazo de entrega. Obrigado!`;
+                
+                // Codificação URI para a URL do WhatsApp
+                const linkWhatsApp = grupo.telefone
+                    ? `https://wa.me/55${grupo.telefone}?text=${encodeURIComponent(mensagemWhatsApp)}`
+                    : null;
+
+                const botaoWhatsApp = linkWhatsApp
+                    ? `<a href="${linkWhatsApp}" target="_blank" rel="noopener noreferrer" class="btn" style="background-color: #25d366; color: #ffffff; text-decoration: none; font-weight: 700; display: inline-flex; align-items: center; gap: 0.5rem; border-radius: 8px; padding: 0.6rem 1.2rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                         <span>📲 Enviar Pedido via WhatsApp</span>
+                       </a>`
+                    : `<span style="font-size: 0.85rem; color: #dc2626; font-weight: 600;">(Cadastre o WhatsApp do fornecedor para habilitar o envio direto)</span>`;
+
+                return `
+                    <article class="form-card" style="margin-bottom: 1.75rem; border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; background: #ffffff;">
+                        <header style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--ice-cyan); padding-bottom: 0.75rem; margin-bottom: 1rem;">
+                            <div>
+                                <h3 style="font-size: 1.15rem; color: var(--tishi-purple); margin: 0;">🏢 ${grupo.nome}</h3>
+                                <small style="color: var(--text-muted);">${grupo.telefone ? 'WhatsApp: ' + grupo.telefone : 'Sem telefone cadastrado'}</small>
+                            </div>
+                            <div>
+                                ${botaoWhatsApp}
+                            </div>
+                        </header>
+                        <ul style="list-style: none; padding: 0; margin: 0;">
+                            ${htmlItens}
+                        </ul>
+                    </article>
+                `;
+            }).join("");
+
+        } catch (erro) {
+            container.innerHTML = `<p style="text-align: center; color: red;">Erro ao carregar o relatório de compras.</p>`;
+        }
+    }
+
+    if (btn) {
         btn.addEventListener("click", carregarCompras);
-        carregarCompras();
-    });
+    }
+
+    carregarCompras();
+});
 </script>
 {% endblock %}
