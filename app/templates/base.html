@@ -30,6 +30,7 @@
         <nav class="main-nav" role="navigation" aria-label="Menu principal">
             <a href="/" id="nav-inicio">Início (Estoque)</a>
             <a href="/cadastro" id="nav-cadastro">Cadastrar Novo Produto</a>
+            <a href="/fornecedores" id="nav-fornecedores">Cadastrar fornecedores</a>
             <a href="/movimentacao" id="nav-movimentacao">Registrar Movimentação</a>
             <a href="/compras" id="nav-compras">Relatório de Compras</a>
         </nav>
@@ -65,6 +66,7 @@
         const path = window.location.pathname;
         if (path === "/") document.getElementById("nav-inicio")?.classList.add("active");
         if (path === "/cadastro") document.getElementById("nav-cadastro")?.classList.add("active");
+        if (path === "/fornecedores") document.getElementById("nav-fornecedores")?.classList.add("active");
         if (path === "/movimentacao") document.getElementById("nav-movimentacao")?.classList.add("active");
         if (path === "/compras") document.getElementById("nav-compras")?.classList.add("active");
     </script>

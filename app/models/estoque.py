@@ -1,6 +1,36 @@
 from datetime import datetime
 from app import db
 
+class Fornecedor(db.Model):
+    __tablename__ = "fornecedores"
+    
+    id = db.Column(db.Integer, primary_key=True)
+    nome = db.Column(db.String(120), nullable=False)
+    telefone = db.Column(db.String(20),nullable=False) # deve conter DDD
+    email = db.Column(db.String(120), nullable=True)
+    
+    # campos de endereço - APi ViaCEP
+    cep = db.Column(db.String(10), nullable=True)
+    logradouro = db.Column(db.String(150), nullable=True)
+    bairro = db.Column(db.String(100), nullable=True)
+    cidade = db.Column(db.String(100), nullable=True)
+    estado = db.Column(db.String(2), nullable=True)
+    
+    # Relacionamentp 1:N com produtos
+    produtos = db.Relationship("Produto", backref="fornecedor", lazy=True)
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "nome": self.nome,
+            "telefone": self.telefone,
+            "email": self.email,
+            "cep": self.cep,
+            "logradouro": self.logradouro,
+            "bairro": self.bairro,
+            "cidade": self.cidade,
+            "estado": self.estado
+        }
+
 class Categoria(db.Model):
     __tablename__ = "categorias"
     
@@ -29,7 +59,9 @@ class Produto(db.Model):
     preco_custo = db.Column(db.Float, nullable=True, default=0.0)
     ativo = db.Column(db.Boolean, default=True)
     
+    # chaves estrangeiras
     categoria_id = db.Column(db.Integer, db.ForeignKey("categorias.id"), nullable=False)
+    fornecedor_id = db.Column(db.Integer, db.ForeignKey("fornecedores.id"), nullable=True)
     
     # Relacionamento 1:1 com estoque e 1:N com Movimentacoes
     estoque = db.relationship("Estoque", backref="produto", uselist=False, cascade="all, delete-orphan")
@@ -45,6 +77,10 @@ class Produto(db.Model):
             "preco_custo": self.preco_custo,
             "ativo": self.ativo,
             "categoria_id": self.categoria_id,
+            "categoria_nome": self.categoria.nome if self.categoria else None,
+            "fornecedor_id": self.fornecedor_id,
+            "fornecedor_nome": self.fornecedor.nome if self.fornecedor else "Não associado",
+            "fornecedor_telefone": self.fornecedor.telefone if self.fornecedor else "",
             "quantidade_atual": self.estoque.quantidade_atual if self.estoque else 0.0,
             "precisa_reposicao": (self.estoque.quantidade_atual <= self.estoque_minimo) if self.estoque else True
         }

@@ -27,6 +27,14 @@
             </select>
         </div>
 
+        <!-- Seleção do Fornecedor associado -->
+        <div class="form-group">
+            <label for="fornecedor_id">Fornecedor: <span class="obrigatorio">*</span></label>
+            <select id="fornecedor_id" name="fornecedor_id" required>
+                <option value="">Carregando fornecedores...</option>
+            </select>
+        </div>
+
         <div class="form-group">
             <label for="unidade_medida">Unidade de Medida: <span class="obrigatorio">*</span></label>
             <select id="unidade_medida" name="unidade_medida" required>
@@ -47,70 +55,113 @@
             <input type="number" id="preco_custo" name="preco_custo" step="0.01" value="0.00">
         </div>
 
-        <button type="submit" class="btn-submit-tishi">Salvar Produto</button>
+        <button type="submit" class="btn-submit-tishi" id="btn-salvar-produto">Salvar Produto</button>
     </form>
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-    document.addEventListener("DOMContentLoaded", async () => {
-        const selectCat = document.getElementById("categoria_id");
-        const form = document.getElementById("form-cadastro-produto");
-        const msg = document.getElementById("mensagem-status");
+document.addEventListener("DOMContentLoaded", async () => {
+    const selectCat = document.getElementById("categoria_id");
+    const selectForn = document.getElementById("fornecedor_id");
+    const form = document.getElementById("form-cadastro-produto");
+    const msg = document.getElementById("mensagem-status");
+    const btnSalvar = document.getElementById("btn-salvar-produto");
 
-        function exibirMsg(texto, tipo = "sucesso") {
-            msg.textContent = texto;
-            msg.className = `alerta alerta-${tipo}`;
-            msg.classList.remove("oculto");
-            setTimeout(() => msg.classList.add("oculto"), 4000);
+    function exibirMsg(texto, tipo = "sucesso") {
+        msg.textContent = texto;
+        msg.className = `alerta alerta-${tipo}`;
+        msg.classList.remove("oculto");
+        setTimeout(() => msg.classList.add("oculto"), 4000);
+    }
+
+    // 1. Carregar Categorias via API
+    try {
+        const resCat = await fetch("/api/categorias");
+        if (!resCat.ok) throw new Error("Falha ao buscar categorias.");
+        const categorias = await resCat.json();
+        
+        selectCat.innerHTML = '<option value="">Selecione a categoria...</option>';
+        categorias.forEach(c => {
+            const opt = document.createElement("option");
+            opt.value = c.id;
+            opt.textContent = c.nome;
+            selectCat.appendChild(opt);
+        });
+    } catch (e) {
+        console.error("Erro categorias:", e);
+        selectCat.innerHTML = '<option value="">Erro ao carregar categorias</option>';
+    }
+
+    // 2. Carregar Fornecedores via API
+    try {
+        const resForn = await fetch("/api/fornecedores");
+        if (!resForn.ok) throw new Error("Falha ao buscar fornecedores.");
+        const fornecedores = await resForn.json();
+        
+        if (fornecedores.length === 0) {
+            selectForn.innerHTML = '<option value="">Nenhum fornecedor cadastrado (Cadastre um primeiro)</option>';
+        } else {
+            selectForn.innerHTML = '<option value="">Selecione o fornecedor...</option>';
+            fornecedores.forEach(f => {
+                const opt = document.createElement("option");
+                opt.value = f.id;
+                opt.textContent = `${f.nome} (${f.cidade || 'Geral'})`;
+                selectForn.appendChild(opt);
+            });
+        }
+    } catch (e) {
+        console.error("Erro fornecedores:", e);
+        selectForn.innerHTML = '<option value="">Erro ao carregar fornecedores</option>';
+    }
+
+    // 3. Salvar Produto via Fetch API
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const catVal = selectCat.value;
+        const fornVal = selectForn.value;
+
+        const payload = {
+            sku: document.getElementById("sku").value.trim(),
+            nome: document.getElementById("nome").value.trim(),
+            categoria_id: catVal ? parseInt(catVal) : null,
+            fornecedor_id: fornVal ? parseInt(fornVal) : null,
+            unidade_medida: document.getElementById("unidade_medida").value,
+            estoque_minimo: parseFloat(document.getElementById("estoque_minimo").value || 5.0),
+            preco_custo: parseFloat(document.getElementById("preco_custo").value || 0.0)
+        };
+
+        if (!payload.sku || !payload.nome || !payload.categoria_id) {
+            exibirMsg("Preencha todos os campos obrigatórios (SKU, Nome e Categoria).", "erro");
+            return;
         }
 
         try {
-            const res = await fetch("/api/categorias");
-            const categorias = await res.json();
-            selectCat.innerHTML = '<option value="">Selecione a categoria...</option>';
-            categorias.forEach(c => {
-                const opt = document.createElement("option");
-                opt.value = c.id;
-                opt.textContent = c.nome;
-                selectCat.appendChild(opt);
+            btnSalvar.disabled = true;
+            btnSalvar.textContent = "Salvando...";
+
+            const res = await fetch("/api/produtos", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
             });
-        } catch (e) {
-            selectCat.innerHTML = '<option value="">Erro ao carregar categorias</option>';
+
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.erro || "Falha ao cadastrar.");
+
+            exibirMsg(`Produto '${data.nome}' cadastrado com sucesso!`, "sucesso");
+            form.reset();
+            selectCat.value = "";
+            selectForn.value = "";
+        } catch (err) {
+            exibirMsg(err.message, "erro");
+        } finally {
+            btnSalvar.disabled = false;
+            btnSalvar.textContent = "Salvar Produto";
         }
-
-        form.addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const payload = {
-                sku: document.getElementById("sku").value.trim(),
-                nome: document.getElementById("nome").value.trim(),
-                categoria_id: parseInt(selectCat.value),
-                unidade_medida: document.getElementById("unidade_medida").value,
-                estoque_minimo: parseFloat(document.getElementById("estoque_minimo").value),
-                preco_custo: parseFloat(document.getElementById("preco_custo").value || 0)
-            };
-
-            if (!payload.sku || !payload.nome || !payload.categoria_id) {
-                exibirMsg("Preencha todos os campos obrigatórios.", "erro");
-                return;
-            }
-
-            try {
-                const res = await fetch("/api/produtos", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload)
-                });
-                const data = await res.json();
-                if (!res.ok) throw new Error(data.erro || "Falha ao cadastrar.");
-
-                exibirMsg(`Produto '${data.nome}' cadastrado com sucesso!`, "sucesso");
-                form.reset();
-            } catch (err) {
-                exibirMsg(err.message, "erro");
-            }
-        });
     });
+});
 </script>
 {% endblock %}

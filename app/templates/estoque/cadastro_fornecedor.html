@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+
+{% block title %}Cadastro de Fornecedor - IceWebCream 2.0{% endblock %}
+
+{% block content %}
+<div class="form-card">
+    <h2 class="page-title">Cadastrar Novo Fornecedor</h2>
+    <div class="title-underline"></div>
+
+    <div id="mensagem-status" class="alerta oculto" role="status" aria-live="polite"></div>
+
+    <form id="form-cadastro-fornecedor" novalidate>
+        <div class="form-group">
+            <label for="nome">Nome do Fornecedor / Razão Social: <span class="obrigatorio">*</span></label>
+            <input type="text" id="nome" name="nome" required placeholder="Ex: Distribuidora Central Tishi">
+        </div>
+
+        <div class="form-group">
+            <label for="telefone">WhatsApp / Telefone com DDD (somente dígitos): <span class="obrigatorio">*</span></label>
+            <input type="text" id="telefone" name="telefone" required placeholder="Ex: 11999998888" maxlength="11">
+            <small style="color: var(--text-muted);">Essencial para a automação de pedidos de reposição.</small>
+        </div>
+
+        <div class="form-group">
+            <label for="email">E-mail de Contato:</label>
+            <input type="text" id="email" name="email" placeholder="contato@fornecedor.com.br">
+        </div>
+
+        <!-- Seção de Endereço integrada com o ViaCEP -->
+        <fieldset style="border: 1px solid var(--border-color); border-radius: 8px; padding: 1rem; margin-top: 1rem;">
+            <legend style="font-weight: 700; color: var(--tishi-purple); padding: 0 0.5rem;">Endereço (Consulta ViaCEP)</legend>
+
+            <div class="form-group" style="margin-top: 0.5rem;">
+                <label for="cep">CEP: <span class="obrigatorio">*</span></label>
+                <input type="text" id="cep" name="cep" placeholder="Ex: 13230000" maxlength="9">
+                <small id="cep-status" style="color: var(--text-muted); display: block; margin-top: 0.2rem;">Digite o CEP para buscar o endereço automaticamente.</small>
+            </div>
+
+            <div class="form-group">
+                <label for="logradouro">Logradouro / Rua:</label>
+                <input type="text" id="logradouro" name="logradouro" placeholder="Rua, Avenida...">
+            </div>
+
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                    <label for="bairro">Bairro:</label>
+                    <input type="text" id="bairro" name="bairro">
+                </div>
+                <div class="form-group">
+                    <label for="estado">UF:</label>
+                    <input type="text" id="estado" name="estado" maxlength="2" placeholder="SP">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="cidade">Cidade:</label>
+                <input type="text" id="cidade" name="cidade" placeholder="Campo Limpo Paulista">
+            </div>
+        </fieldset>
+
+        <button type="submit" class="btn-submit-tishi" style="margin-top: 1.5rem;">Salvar Fornecedor</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const cepInput = document.getElementById("cep");
+    const cepStatus = document.getElementById("cep-status");
+    const logradouroInput = document.getElementById("logradouro");
+    const bairroInput = document.getElementById("bairro");
+    const cidadeInput = document.getElementById("cidade");
+    const estadoInput = document.getElementById("estado");
+    const form = document.getElementById("form-cadastro-fornecedor");
+    const msg = document.getElementById("mensagem-status");
+
+    function exibirMsg(texto, tipo = "sucesso"){
+        msg.textContent = texto;
+        msg.className = `alerta alerta-${tipo}`;
+        msg.classList.remove("oculto");
+        setTimeout(() => msg.classList.add("oculto"), 4000);
+    }
+
+    // --- Atividade 3.1: Integração Assíncrona com a API ViaCEP ---
+    async function consultarViaCEP(){
+        // Remove traços ou caracteres não numéricos
+        const cep = cepInput.value.replace(/\D/g, "");
+
+        if (cep.length === 8) {
+            cepStatus.textContent = "Buscando dados no ViaCEP...";
+            cepStatus.style.color = "var(--ice-cyan)";
+
+            try {
+                // Chamada RESTful para a API pública do ViaCEP
+                const resposta = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+                const dados = await resposta.json();
+
+                if (dados.erro) {
+                    cepStatus.textContent = "CEP não encontrado.";
+                    cepStatus.style.color = "red";
+                    return;
+                }
+
+                // Preenchimento automático dos campos
+                logradouroInput.value = dados.logradouro || "";
+                bairroInput.value = dados.bairro || "";
+                cidadeInput.value = dados.localidade || "";
+                estadoInput.value = dados.uf || "";
+
+                cepStatus.textContent = "✓ Endereço preenchido com sucesso pelo ViaCEP!";
+                cepStatus.style.color = "green";
+            } catch (erro) {
+                cepStatus.textContent = "Falha ao conectar com o serviço ViaCEP.";
+                cepStatus.style.color = "red";
+            }
+        }
+    }
+
+    cepInput.addEventListener("blur", consultarViaCEP);
+
+    // --- Envio dos Dados para a API REST da Aplicação ---
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const payload = {
+            nome: document.getElementById("nome").value.trim(),
+            telefone: document.getElementById("telefone").value.replace(/\D/g, ""),
+            email: document.getElementById("email").value.trim(),
+            cep: cepInput.value.trim(),
+            logradouro: logradouroInput.value.trim(),
+            bairro: bairroInput.value.trim(),
+            cidade: cidadeInput.value.trim(),
+            estado: estadoInput.value.trim()
+        };
+
+        if (!payload.nome || !payload.telefone) {
+            exibirMsg("Preencha o Nome e o WhatsApp com DDD.", "erro");
+            return;
+        }
+
+        try {
+            const res = await fetch("/api/fornecedores", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.erro || "Erro ao salvar.");
+
+            exibirMsg(`Fornecedor "${data.nome}" cadastrado com sucesso!`, "sucesso");
+            form.reset();
+            cepStatus.textContent = "Digite o CEP para buscar o endereço automaticamente.";
+            cepStatus.style.color = "var(--text-muted)";
+        } catch (err) {
+            exibirMsg(err.message, "erro");
+        }
+    });
+});</script>
+{% endblock %}

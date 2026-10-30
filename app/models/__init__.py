@@ -1,3 +1,3 @@
-from app.models.estoque import Categoria, Produto, Estoque, Movimentacao
+from app.models.estoque import Fornecedor, Categoria, Produto, Estoque, Movimentacao
 
-__all__ = ["Categoria", "Produto", "Estoque", "Movimentacao"]
+__all__ = ["Fornecedor","Categoria", "Produto", "Estoque", "Movimentacao"]

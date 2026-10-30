@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from app import db
-from app.models.estoque import Categoria, Produto, Estoque, Movimentacao
+from app.models.estoque import Fornecedor, Categoria, Produto, Estoque, Movimentacao
 
 api_bp = Blueprint("api", __name__, url_prefix="/api")
 
@@ -23,6 +23,7 @@ def criar_produto():
     sku = dados.get("sku")
     nome = dados.get("nome")
     categoria_id = dados.get("categoria_id")
+    fornecedor_id = dados.get("fornecedor_id")
     
     if not sku or not nome or not categoria_id:
         return jsonify({"erro": "Campos obrigatórios: sku, nome e categoria_id"}), 400
@@ -36,7 +37,8 @@ def criar_produto():
         unidade_medida=dados.get("unidade_medida", "UN"),
         estoque_minimo=float(dados.get("estoque_minimo", 5.0)),
         preco_custo=float(dados.get("preco_custo", 0.0)),
-        categoria_id=int(categoria_id)
+        categoria_id=int(categoria_id),
+        fornecedor_id=int(fornecedor_id) if fornecedor_id else None
     )
     
     estoque_inicial = Estoque(produto=novo_produto, quantidade_atual=0.0)
@@ -48,7 +50,6 @@ def criar_produto():
     return jsonify(novo_produto.to_dict()), 201
 
 # --- Movimentações de Estoque (Entradas e Saídas Assíncronas) ---
-# Substitua a validação do tipo e o cálculo em app/routes/api.py:
 @api_bp.route("/movimentacoes", methods=["POST"])
 def registrar_movimentacao():
     dados = request.get_json() or {}
@@ -102,3 +103,38 @@ def registrar_movimentacao():
         "saldo_atual": estoque.quantidade_atual,
         "precisa_reposicao": produto.to_dict()["precisa_reposicao"]
     }), 200
+    
+
+# --- Fornecedores ---
+@api_bp.route("/fornecedores", methods=["GET"])
+def listar_fornecedores():
+    """Retorna a lista de fornecedores cadastrados em JSON"""
+    fornecedores = Fornecedor.query.order_by(Fornecedor.nome).all()
+    return jsonify([f.to_dict() for f in fornecedores]), 200
+
+@api_bp.route("/fornecedores", methods=["POST"])
+def criar_fornecedores():
+    """Cadastra um novo fornecedor com os dados preenchidos (com ViaCep)"""
+    dados = request.get_json() or {}
+    
+    nome = dados.get("nome","").strip()
+    telefone = dados.get("telefone", "").strip()
+    
+    if not nome or not telefone:
+        return jsonify({"erro": "Campos obrigatorios: Nome e Telefone com DDD"}),400
+    
+    novo_fornecedor = Fornecedor(
+        nome=nome,
+        telefone=telefone,
+        email=dados.get("email","").strip(),
+        cep=dados.get("cep","").strip(),
+        logradouro=dados.get("logradouro","").strip(),
+        bairro=dados.get("bairro","").strip(),
+        cidade=dados.get("cidade","").strip(),
+        estado=dados.get("estado","").strip()
+    )
+    
+    db.session.add(novo_fornecedor)
+    db.session.commit()
+    
+    return jsonify(novo_fornecedor.to_dict()), 201

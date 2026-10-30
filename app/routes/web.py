@@ -21,3 +21,8 @@ def movimentacao():
 def compras():
     """Tela de sugestão e relatório de reposição."""
     return render_template("estoque/compras.html")
+
+@web_bp.route("/fornecedores")
+def cadastro_fornecedor():
+    """Tela de cadastro de fornecedores"""
+    return render_template("estoque/cadastro_fornecedor.html")
